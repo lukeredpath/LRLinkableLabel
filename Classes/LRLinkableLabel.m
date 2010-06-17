@@ -126,7 +126,7 @@
 - (id)initWithFrame:(CGRect)frame 
 {
   if ((self = [super initWithFrame:frame])) {
-    font = [[UIFont systemFontOfSize:22] retain];
+    font = [[UIFont systemFontOfSize:[UIFont labelFontSize]] retain];
     links = [[NSMutableArray alloc] init];
     linkColor = [[UIColor redColor] retain];
     textColor = [[UIColor blackColor] retain];
