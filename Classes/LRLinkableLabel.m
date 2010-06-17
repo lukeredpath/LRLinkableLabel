@@ -131,7 +131,9 @@
     linkColor = [[UIColor redColor] retain];
     textColor = [[UIColor blackColor] retain];
     linkButtons = [[NSMutableArray alloc] init];
+    
     self.backgroundColor = [UIColor whiteColor];
+    self.opaque = YES;
     self.comparison = NO;
     self.contentMode = UIViewContentModeRedraw;
   }
@@ -150,16 +152,23 @@
 {
   UILineBreakMode lineBreakMode = UILineBreakModeWordWrap;
   UITextAlignment textAlignment = UITextAlignmentLeft;
-
+  
+  CGSize constraint = CGSizeMake(rect.size.width, CGFLOAT_MAX);
+  CGFloat textHeight = [self.text sizeWithFont:self.font constrainedToSize:constraint lineBreakMode:lineBreakMode].height;
+  CGPoint currentPoint = CGPointZero;
+  
+  // center the text vertically in the view like UILabel
+  if (textHeight <= rect.size.height) {
+    CGFloat centerY = rect.size.height / 2;
+    currentPoint = CGPointMake(0, centerY - (textHeight / 2));
+  }
   if (self.comparison) {
     [self.text drawInRect:rect withFont:self.font lineBreakMode:lineBreakMode alignment:textAlignment];
     
   } else {
-    CGSize constraint = CGSizeMake(rect.size.width, CGFLOAT_MAX);
     NSString *wordSeparator = @" ";
     CGFloat wordSeparatorWidth = [wordSeparator sizeWithFont:self.font].width;
 
-    CGPoint currentPoint = CGPointZero;
     CGFloat availableLineWidth = constraint.width;
     
     LRLinkableLabelComponentScanner *scanner = [[LRLinkableLabelComponentScanner alloc] initWithString:self.text];
