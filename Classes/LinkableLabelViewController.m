@@ -23,7 +23,7 @@
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
 {
-  return 2;
+  return 20;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -48,10 +48,6 @@
   label.text = @"This is a test string with a link http://www.example.com and lots of other text that isn't a link and its qiute long too. How about some lipsum? Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam facilisis, neque eu dapibus pharetra, http://google.com, a pharetra lacus lacus in sapien. Morbi auctor venenatis sapien non pharetra. Cras id nisi ipsum.";
   
   label.comparison = (indexPath.row == 0);
-  
-  label.backgroundColor = [UIColor grayColor];
-  label.textColor = [UIColor whiteColor];
-  label.linkColor = [UIColor yellowColor];
   
   return cell;
 }

@@ -111,7 +111,7 @@
 @interface LRLinkableLabel ()
 - (void)drawComponent:(NSString *)stringComponent currentPoint:(CGPoint *)currentPoint availableWidth:(CGFloat *)availableWidth constraint:(CGSize)constraint separatorWidth:(CGFloat)separatorWidth;
 
-- (void)addButtonForLinkComponent:(LRURLString *)URLStringComponent currentPoint:(CGPoint *)currentPoint availableWidth:(CGFloat *)width constraint:(CGSize)constraint separatorWidth:(CGFloat)separatorWidth;
+- (void)createButtonForLinkComponent:(LRURLString *)URLStringComponent currentPoint:(CGPoint)currentPoint availableWidth:(CGFloat)width constraint:(CGSize)constraint;
 @end
 
 @implementation LRLinkableLabel
@@ -149,8 +149,6 @@
 {
   UILineBreakMode lineBreakMode = UILineBreakModeWordWrap;
   UITextAlignment textAlignment = UITextAlignmentLeft;
-  
-  [self.textColor set];
 
   if (self.comparison) {
     [self.text drawInRect:rect withFont:self.font lineBreakMode:lineBreakMode alignment:textAlignment];
@@ -169,15 +167,23 @@
       if ([component isKindOfClass:[LRURLString class]]) {
         [links addObject:component];
         
-        [self addButtonForLinkComponent:(LRURLString *)component 
-                 currentPoint:&currentPoint 
-               availableWidth:&availableLineWidth 
-                   constraint:constraint 
-               separatorWidth:0];
+        [self createButtonForLinkComponent:(LRURLString *)component
+               currentPoint:currentPoint 
+             availableWidth:availableLineWidth 
+                 constraint:constraint];
+        
+        [self.linkColor set];
+        [self drawComponent:[(LRURLString *)component string] 
+               currentPoint:&currentPoint 
+             availableWidth:&availableLineWidth 
+                 constraint:constraint 
+             separatorWidth:0];
                 
       } else {
         // remove the last space of the component as it will be added artificially
         NSString *componentWithoutLastSpace = [component substringToIndex:component.length-1];
+        
+        [self.textColor set];
         for (NSString *word in [componentWithoutLastSpace componentsSeparatedByString:wordSeparator]) {
           [self drawComponent:word 
                  currentPoint:&currentPoint 
@@ -189,16 +195,9 @@
     }    
     [scanner release];
     
-    // for some reason, if the buttons are added during this runloop, they aren't drawn
-    // properly, so add them in the next runloop instead, bit of a hack but it works
-    [self performSelector:@selector(insertLinkButtons) withObject:nil afterDelay:0.0];
-  }
-}
-
-- (void)insertLinkButtons;
-{
-  for (UIButton *button in linkButtons) {
-    [self addSubview:button];
+    for (UIButton *button in linkButtons) {
+      [self addSubview:button];
+    }
   }
 }
 
@@ -222,35 +221,31 @@
   *availableWidth -= totalComponentWidth;  
 }
 
-- (void)addButtonForLinkComponent:(LRURLString *)URLStringComponent currentPoint:(CGPoint *)currentPoint availableWidth:(CGFloat *)availableWidth constraint:(CGSize)constraint separatorWidth:(CGFloat)separatorWidth;
+- (void)createButtonForLinkComponent:(LRURLString *)URLStringComponent currentPoint:(CGPoint)currentPoint availableWidth:(CGFloat)availableWidth constraint:(CGSize)constraint
 {
   CGSize componentSize = [URLStringComponent.string sizeWithFont:self.font forWidth:constraint.width lineBreakMode:UILineBreakModeClip];
   
-  if (componentSize.width > *availableWidth) { // move to next line
-    *currentPoint = CGPointMake(0, currentPoint->y + componentSize.height);
-    *availableWidth = constraint.width;
+  if (componentSize.width > availableWidth) { // move to next line
+    currentPoint = CGPointMake(0, currentPoint.y + componentSize.height);
+    availableWidth = constraint.width;
   }
   
   CGRect buttonRect = CGRectZero;
-  buttonRect.origin = *currentPoint;
+  buttonRect.origin = currentPoint;
   buttonRect.size = componentSize;
   
   UIButton *stringButton = [UIButton buttonWithType:UIButtonTypeCustom];
   stringButton.frame = buttonRect;
-  stringButton.titleLabel.font = self.font;
   stringButton.tag = [links indexOfObject:URLStringComponent];
-  stringButton.backgroundColor = self.backgroundColor;
-  stringButton.opaque = YES;
+  stringButton.backgroundColor = [UIColor clearColor];
+  stringButton.opaque = NO;
   
-  [stringButton setTitle:URLStringComponent.string forState:UIControlStateNormal];        
-  [stringButton setTitleColor:self.linkColor forState:UIControlStateNormal];
   [stringButton addTarget:self action:@selector(handleLinkButtonTap:) forControlEvents:UIControlEventTouchUpInside];
-  
   [linkButtons addObject:stringButton];
   
-  CGFloat totalComponentWidth = (componentSize.width + separatorWidth);
-  *currentPoint = CGPointMake(currentPoint->x + totalComponentWidth, currentPoint->y);
-  *availableWidth -= totalComponentWidth;   
+  CGFloat totalComponentWidth = componentSize.width;
+  currentPoint = CGPointMake(currentPoint.x + totalComponentWidth, currentPoint.y);
+  availableWidth -= totalComponentWidth;   
 }
 
 #pragma mark -
