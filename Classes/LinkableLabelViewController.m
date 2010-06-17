@@ -18,6 +18,11 @@
   self.tableView.rowHeight = 180;
 }
 
+- (void)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+{
+  return YES;
+}
+
 #pragma mark -
 #pragma mark UITableView methods
 

@@ -133,6 +133,7 @@
     linkButtons = [[NSMutableArray alloc] init];
     self.backgroundColor = [UIColor whiteColor];
     self.comparison = NO;
+    self.contentMode = UIViewContentModeRedraw;
   }
   return self;
 }
