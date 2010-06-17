@@ -22,8 +22,10 @@
 @property (nonatomic, retain) UIFont *font;
 @property (nonatomic, retain) UIColor *linkColor;
 @property (nonatomic, retain) UIColor *textColor;
-@property (nonatomic, assign) BOOL comparison;
 @property (nonatomic, assign) id delegate;
+
+// for debugging purposes, draws the string normally
+@property (nonatomic, assign) BOOL comparison;
 @end
 
 @interface NSObject (LRLinkableLabelDelegate)
