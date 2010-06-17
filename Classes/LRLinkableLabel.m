@@ -173,7 +173,8 @@
     
     LRLinkableLabelComponentScanner *scanner = [[LRLinkableLabelComponentScanner alloc] initWithString:self.text];
     
-    for (NSString *component in [scanner components]) {
+    NSArray *scannedComponents = [scanner components];
+    for (NSString *component in scannedComponents) {
       if ([component isKindOfClass:[LRURLString class]]) {
         [links addObject:component];
         
@@ -190,9 +191,13 @@
              separatorWidth:0];
                 
       } else {
-        // remove the last space of the component as it will be added artificially
-        NSString *componentWithoutLastSpace = [component substringToIndex:component.length-1];
+        NSString *componentWithoutLastSpace = component;
         
+        // if this isn't the last component, then remove the 
+        // last space of the component as it will be added artificially
+        if ([scannedComponents indexOfObject:component] < scannedComponents.count - 1) {
+          componentWithoutLastSpace = [component substringToIndex:component.length-1];
+        }        
         [self.textColor set];
         for (NSString *word in [componentWithoutLastSpace componentsSeparatedByString:wordSeparator]) {
           [self drawComponent:word 
